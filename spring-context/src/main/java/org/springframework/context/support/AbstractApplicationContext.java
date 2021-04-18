@@ -520,7 +520,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			// 获取实现类刷新后的beanFactory实例。
 
-			// 对xml形式的容器， 该操作比较复杂， 首先实例化DefaultListableBeanFactory，
+			// 对xml形式的容器，该操作比较复杂，首先实例化DefaultListableBeanFactory，
 			// 并将BeanDefinition解析出来并注册，然后才返回DefaultListableBeanFactory
 
 			// 对于注解形式的容器， 该操作只是设置了serializationId，并返回DefaultListableBeanFactory(在容器构造函数中创建的)
@@ -531,31 +531,33 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// Allows post-processing of the bean factory in context subclasses.
+				// 允许容器子类去注册postProcess
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
+				// 调用容器注册的容器级别的后置处理器
+				// 对于注解形式的容器， 到这个时候，才会通过后置处理器注册将beanDefinition到容器中
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
+				// 向容器注解Bean级别的后置处理器
 				registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				// 国际化消息处理
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
+				// 初始化事件发布器组件，如果没有配置applicationEventMulticaster这个Bean，
+				// 就默认实现SimpleApplicationEventMulticaster
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				// 单例bean初始化之前，预留给其他特殊bean初始化的m钩子，默认不实现
 				onRefresh();
 
-				// Check for listener beans and register them.
+				// 往事件发布器中注册事件监听器
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				// 完成非懒加载的单例Bean实例化
 				finishBeanFactoryInitialization(beanFactory);
 
-				// Last step: publish corresponding event.
+				// 重置spring共用缓存
 				finishRefresh();
 			}
 
