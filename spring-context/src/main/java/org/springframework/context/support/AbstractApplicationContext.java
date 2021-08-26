@@ -515,10 +515,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
-			// 刷新前的准备工作： 设置容器状态为激活状态、placeHolder初始化、环境校验等
+			// 1. 刷新前的准备工作： 设置容器状态为激活状态、处理配置文件中的占位符等
 			prepareRefresh();
 
-			// 获取实现类刷新后的beanFactory实例。
+			// 2. 获取实现类刷新后的beanFactory实例。
 
 			// 对xml形式的容器，该操作比较复杂，首先实例化DefaultListableBeanFactory，
 			// 并将BeanDefinition解析出来并注册，然后才返回DefaultListableBeanFactory
@@ -526,38 +526,38 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// 对于注解形式的容器， 该操作只是设置了serializationId，并返回DefaultListableBeanFactory(在容器构造函数中创建的)
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// 容器准备工作，为容器注册必要的系统级别的bean,
+			// 3. 准备工作：设置 BeanFactory 的类加载器，添加几个 BeanPostProcessor，手动注册几个特殊的 bean
 			// 比如BeanExpressionResolver，PropertyEditorRegistrar，environment，systemProperties
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// 允许容器子类去注册postProcess
+				// 4. 允许容器子类去注册postProcess,做点什么事情, 此时bean加载、注册完成，但是还未初始化
 				postProcessBeanFactory(beanFactory);
 
-				// 调用容器注册的容器级别的后置处理器
+				// 5. 调用容器注册的容器级别的后置处理器(调用 BeanFactoryPostProcessor 各个实现类的 postProcessBeanFactory(factory) 方法)
 				// 对于注解形式的容器， 到这个时候，才会通过后置处理器注册将beanDefinition到容器中
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// 向容器注解Bean级别的后置处理器
+				// 6. 向容器注解Bean级别的后置处理器
 				registerBeanPostProcessors(beanFactory);
 
-				// 国际化消息处理
+				// 7. 国际化消息处理
 				initMessageSource();
 
-				// 初始化事件发布器组件，如果没有配置applicationEventMulticaster这个Bean，
+				// 8. 初始化事件发布器组件，如果没有配置applicationEventMulticaster这个Bean，
 				// 就默认实现SimpleApplicationEventMulticaster
 				initApplicationEventMulticaster();
 
-				// 单例bean初始化之前，预留给其他特殊bean初始化的m钩子，默认不实现
+				// 9. 单例bean初始化之前，预留给其他特殊bean初始化的m钩子，默认不实现
 				onRefresh();
 
-				// 往事件发布器中注册事件监听器
+				// 10. 往事件发布器中注册事件监听器
 				registerListeners();
 
-				// 完成非懒加载的单例Bean实例化
+				// 11. 完成非懒加载的单例Bean实例化
 				finishBeanFactoryInitialization(beanFactory);
 
-				// 重置spring共用缓存
+				// 12. 广播事件，ApplicationContext 初始化完成
 				finishRefresh();
 			}
 
@@ -609,6 +609,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
+		// 校验xml文件
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
@@ -642,7 +643,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		// 关闭旧的 BeanFactory (如果有)，创建新的 BeanFactory，加载 Bean 定义、注册 Bean 等等
+		// 跳到AbstractRefreshableApplicationContext
 		refreshBeanFactory();
+		// 返回刚刚创建的 BeanFactory
 		return getBeanFactory();
 	}
 
