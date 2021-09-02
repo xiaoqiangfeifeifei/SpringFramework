@@ -17,10 +17,10 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
  */
 @Configuration
 @ComponentScan("com.gary")
-public class Entrance {
+public class IOCEntrance {
 	public static void main(String[] args) {
-		String sourcePath = "D:\\project\\SpringFramework\\springdemo\\src\\main\\resources\\config\\spring-config.xml";
-		String classPath = "classpath:config\\spring-config.xml";
+		String sourcePath = "D:\\project\\SpringFramework\\springdemo\\src\\main\\resources\\config\\spring-ioc-config.xml";
+		String classPath = "classpath:config\\spring-ioc-config.xml";
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(classPath);
 
 

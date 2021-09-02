@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress ALL -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="userServiceImpl" class="com.gary.service.impl.UserServiceImpl"></bean>
+	<bean id="orderServiceImpl" class="com.gary.service.impl.OrderServiceImpl"></bean>
+
+	<!--定义两个advice-->
+	<bean id="logArgsAdvice" class="com.gary.service.aspect.LogArgsAdvice"></bean>
+	<bean id="logResultAdvice" class="com.gary.service.aspect.LogResultAdvice"></bean>
+
+	<!--定义两个advisor-->
+	<bean id="logArgsAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="logArgsAdvice"></property>
+		<property name="pattern" value="com.gary.service.*.create.*"></property>
+	</bean>
+
+	<bean id="logResultAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="logResultAdvice"></property>
+		<property name="pattern" value="com.gary.service.*.query.*"></property>
+	</bean>
+
+
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+</beans>
